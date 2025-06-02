@@ -1,0 +1,27 @@
+# Go build artifacts
+/bin/
+/build/
+/dist/
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+
+# Go vendor directory (if you use vendoring)
+vendor/
+
+# Dependency directories (Go Modules)
+go.sum
+
+# OS junk
+.DS_Store
+*.swp
+
+# Logs
+*.log
+
+# VS Code settings
+.vscode/
