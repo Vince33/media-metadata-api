@@ -10,12 +10,13 @@ A lightweight, fast Go-based API for extracting metadata from media files using 
 - Built with [Gin](https://github.com/gin-gonic/gin) and designed for easy deployment
 
 ## Project Structure
-
+```
 media-metadata-api/
-|----- main.go # Entry point
-|----- handlers/ #HTTP route logic
-|----- utils/ # FFmpeg/FFprobe helpers
-|----- media/ # Uploaded or test media
+├── main.go              # Entry point
+├── handlers/            # HTTP route logic
+├── utils/               # FFmpeg/FFprobe helpers
+└── media/               # Uploaded or test media
+```
 
 ## Status
 
