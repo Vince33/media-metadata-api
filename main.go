@@ -1,13 +1,15 @@
 package main
 
 import (
-	"github.com/gin-gonic/gin"
 	"log"
 	"net/http"
+
+	"github.com/Vince33/media-metadata-api/handlers"
+	"github.com/gin-gonic/gin"
 )
 
 func main() {
-	// Create a new Gin router 
+	// Create a new Gin router
 	r := gin.Default()
 
 	// healthcheck endpoint
@@ -16,6 +18,8 @@ func main() {
 	})
 
 	//TODO: Add more endpoints here
+	//New extract endpoint
+	r.POST("/extract", handlers.ExtractHandler)
 
 	log.Println("Starting server on :8080")
 	if err := r.Run(":8080"); err != nil {
