@@ -2,12 +2,16 @@
 
 A lightweight, fast Go-based API for extracting metadata from media files using FFmpeg/FFprobe.
 
-## Features
+## 🚀 Current Features
 
-- Upload media files (audio/video)
-- Extract technical metadata using FFprobe
-- Return results as JSON
-- Built with [Gin](https://github.com/gin-gonic/gin) and designed for easy deployment
+- **Upload Media Files:** Accepts video files via a `POST /extract` endpoint.
+- **Extract Metadata:** Uses `ffprobe` to parse format and stream-level metadata.
+- **Clean JSON Response:** Returns structured metadata including:
+  - File format, duration, and bit rate
+  - Video codec, resolution, and stream info
+  - Audio stream details (if present in the file)
+- **Tested With:** `.mp4` files only (more formats to be tested)
+
 
 ## Project Structure
 ```
