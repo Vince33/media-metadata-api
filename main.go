@@ -12,6 +12,9 @@ func main() {
 	// Create a new Gin router
 	r := gin.Default()
 
+	// Set max upload size to 10MiB for now
+	r.MaxMultipartMemory = 10 << 20 // 10 MiB
+
 	// healthcheck endpoint
 	r.GET("/health", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{"status": "ok"})
