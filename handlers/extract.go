@@ -4,6 +4,8 @@ import (
 	"net/http"
 	"path/filepath"
 
+	"os"
+
 	"github.com/Vince33/media-metadata-api/utils"
 	"github.com/gin-gonic/gin"
 )
@@ -19,6 +21,14 @@ func ExtractHandler(c *gin.Context) {
 	savePath := filepath.Join("media", file.Filename)
 	if err := c.SaveUploadedFile(file, savePath); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to save file"})
+		return
+	}
+
+	// Validate the file type after saving
+	allowedTypes := []string{"video/mp4", "video/mpeg", "video/quicktime"}
+	if !utils.IsValidMimeType(savePath, allowedTypes) {
+		os.Remove(savePath) // Clean up the saved file
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid file type"})
 		return
 	}
 
