@@ -22,9 +22,15 @@ media-metadata-api/
 └── media/               # Uploaded or test media
 ```
 
-## Status
+## 📌 Project Status
 
-🚧 Early development — core file upload and extraction coming soon.
+This project is in early development.
+
+✅ Basic upload and metadata extraction from `.mp4` files is working  
+🚧 Support for additional media types (e.g., `.mp3`, `.wav`, `.mov`) is planned  
+🧪 Only tested with `.mp4` files so far  
+📂 Internal structure and utility functions are still evolving  
+
 
 ## Getting Started
 
