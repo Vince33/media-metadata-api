@@ -25,3 +25,8 @@ go.sum
 
 # VS Code settings
 .vscode/
+
+# Prevents the media files from being pushed to the repository
+# but keeps the .gitkeep file for directory structure
+/media/*
+!/media/.gitkeep
