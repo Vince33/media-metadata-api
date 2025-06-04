@@ -26,7 +26,7 @@ func TestExtractHandler_ValidFile(t *testing.T) {
 	body := &bytes.Buffer{}
 	writer := multipart.NewWriter(body)
 
-	filePath := "../testdata/SampleVideo_1280x720_1mb.mp4" // Path to a sample video file, make sure this file exists in your test environment. May have to add to repo undecided on how to handle for the time being.
+	filePath := "./testdata/SampleVideo_1280x720_1mb.mp4" // Path to a sample video file, make sure this file exists in your test environment. May have to add to repo undecided on how to handle for the time being.
 	file, err := os.Open(filePath)
 	if err != nil {
 		t.Fatalf("Failed to open file: %v", err)
