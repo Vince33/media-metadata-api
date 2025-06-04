@@ -33,7 +33,7 @@ func ExtractHandler(c *gin.Context) {
 	}
 
 	// Save the file to a temporary location
-	savePath := filepath.Join("media", file.Filename)
+	savePath := filepath.Join("../media", file.Filename)
 	if err := c.SaveUploadedFile(file, savePath); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to save file"})
 		return
