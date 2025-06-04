@@ -11,7 +11,7 @@
 *.out
 
 # Go vendor directory (if you use vendoring)
-vendor/
+#vendor/
 
 # Dependency directories (Go Modules)
 go.sum
