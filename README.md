@@ -56,6 +56,9 @@ media-metadata-api/
    go run main.go
    ```
 
+Note: 📦 Vendored dependencies included for offline testing. Periodically updated using ```go get -u && go mod vendor```
+.
+
 ---
 
 ## 📫 API Usage
