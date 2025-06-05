@@ -5,7 +5,7 @@ import (
 	"os"
 )
 
-// IsValidMimeType checks if the provided MIME type is of a file matches one of the allowed tyupes.
+// IsValidMimeType checks if the provided MIME type is of a file matches one of the allowed types.
 func IsValidMimeType(filePath string, allowedTypes []string) bool {
 	file, err := os.Open(filePath)
 	if err != nil {
