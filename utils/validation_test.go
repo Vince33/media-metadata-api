@@ -1,28 +1,18 @@
 package utils
 
 import (
-	"os"
-	"os/exec"
+	"path/filepath"
 	"testing"
 
 	"github.com/stretchr/testify/require"
 )
 
+// NOTE: Ensure GenerateTestVideo is accessible from this package, or move it to a shared testhelpers subpackage.
 func TestIsValidMimeType(t *testing.T) {
-	// Ensure testdata directory exists
-	err := os.MkdirAll("utils/testdata", 0755)
-	require.NoError(t, err)
+	tempDir := t.TempDir()
+	testFile := filepath.Join(tempDir, "sample_video.mp4")
 
-	testFile := "utils/testdata/sample_video.mp4"
-
-	// Safer FFmpeg command with full output logging
-	cmd := exec.Command("ffmpeg", "-y",
-		"-f", "lavfi", "-i", "testsrc=duration=1:size=128x128:rate=24",
-		"-c:v", "libx264", "-t", "1", "-pix_fmt", "yuv420p",
-		testFile,
-	)
-	output, err := cmd.CombinedOutput()
-	require.NoError(t, err, "failed to generate test video: %s", string(output))
+	GenerateTestVideo(t, testFile, "128x128", "1")
 
 	// Run MIME type validations
 	valid := IsValidMimeType(testFile, []string{"video/mp4"})
@@ -31,11 +21,6 @@ func TestIsValidMimeType(t *testing.T) {
 	invalid := IsValidMimeType(testFile, []string{"image/png"})
 	require.False(t, invalid, "expected invalid MIME type")
 
-	missing := IsValidMimeType("does_not_exist.mp4", []string{"video/mp4"})
+	missing := IsValidMimeType(filepath.Join(tempDir, "does_not_exist.mp4"), []string{"video/mp4"})
 	require.False(t, missing, "expected false for nonexistent file")
-
-	t.Cleanup(func() {
-		os.Remove(testFile)
-		os.Remove("utils/testdata")
-	})
 }

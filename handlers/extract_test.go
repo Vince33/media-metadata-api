@@ -8,10 +8,10 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"os"
-	"os/exec"
 	"path/filepath"
 	"testing"
 
+	"github.com/Vince33/media-metadata-api/utils"
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/require"
 )
@@ -31,11 +31,7 @@ func TestExtractHandler_ValidFile(t *testing.T) {
 	testFile := filepath.Join(tempDir, "sample_for_extract_test.mp4")
 
 	// Generate the sample video file with FFmpeg
-	cmd := exec.Command(
-		"ffmpeg", "-y", "-f", "lavfi", "-i", "testsrc=duration=1:size=1280x720:rate=24", testFile,
-	)
-	output, err := cmd.CombinedOutput()
-	require.NoError(t, err, "ffmpeg video generation failed: %s", string(output))
+	utils.GenerateTestVideo(t, testFile, "1280x720", "1")
 
 	body := &bytes.Buffer{}
 	writer := multipart.NewWriter(body)
@@ -67,13 +63,8 @@ func TestExtractHandler_MetadataFields(t *testing.T) {
 	testFile := filepath.Join(tempDir, "auto_generated.mp4")
 
 	// Run FFmpeg command and capture stderr
-	cmd := exec.Command(
-		"ffmpeg", "-y", "-f", "lavfi", "-i", "testsrc=duration=1:size=128x128:rate=24", testFile,
-	)
-	output, err := cmd.CombinedOutput()
-	if err != nil {
-		t.Fatalf("❌ FFmpeg failed to generate test video.\nExit code: %v\nOutput:\n%s", err, string(output))
-	}
+	// Generate a synthetic video file for testing
+	utils.GenerateTestVideo(t, testFile, "128x128", "1")
 
 	// Set up Gin router and handler
 	router := gin.Default()
