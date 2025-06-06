@@ -33,4 +33,9 @@ func TestIsValidMimeType(t *testing.T) {
 
 	missing := IsValidMimeType("does_not_exist.mp4", []string{"video/mp4"})
 	require.False(t, missing, "expected false for nonexistent file")
+
+	t.Cleanup(func() {
+		os.Remove(testFile)
+		os.Remove("utils/testdata")
+	})
 }

@@ -26,21 +26,28 @@ func TestExtractHandler_ValidFile(t *testing.T) {
 	router := gin.Default()
 	router.POST("/extract", ExtractHandler)
 
+	// Use a temporary directory for the test file
+	tempDir := t.TempDir()
+	testFile := filepath.Join(tempDir, "sample_for_extract_test.mp4")
+
+	// Generate the sample video file with FFmpeg
+	cmd := exec.Command(
+		"ffmpeg", "-y", "-f", "lavfi", "-i", "testsrc=duration=1:size=1280x720:rate=24", testFile,
+	)
+	output, err := cmd.CombinedOutput()
+	require.NoError(t, err, "ffmpeg video generation failed: %s", string(output))
+
 	body := &bytes.Buffer{}
 	writer := multipart.NewWriter(body)
 
-	filePath := "./testdata/SampleVideo_1280x720_1mb.mp4" // Path to a sample video file, make sure this file exists in your test environment. May have to add to repo undecided on how to handle for the time being.
-	file, err := os.Open(filePath)
-	if err != nil {
-		t.Fatalf("Failed to open file: %v", err)
-	}
+	file, err := os.Open(testFile)
+	require.NoError(t, err)
 	defer file.Close()
 
-	part, err := writer.CreateFormFile("file", filepath.Base(filePath))
-	if err != nil {
-		t.Fatalf("Failed to create form file: %v", err)
-	}
-	io.Copy(part, file)
+	part, err := writer.CreateFormFile("file", filepath.Base(testFile))
+	require.NoError(t, err)
+	_, err = io.Copy(part, file)
+	require.NoError(t, err)
 	writer.Close()
 
 	req := httptest.NewRequest("POST", "/extract", body)
@@ -49,19 +56,15 @@ func TestExtractHandler_ValidFile(t *testing.T) {
 	resp := httptest.NewRecorder()
 	router.ServeHTTP(resp, req)
 
-	if resp.Code != http.StatusOK {
-		t.Errorf("Expected status code 200, got %d", resp.Code)
-	}
+	require.Equal(t, http.StatusOK, resp.Code)
 }
 
 func TestExtractHandler_MetadataFields(t *testing.T) {
 	t.Parallel()
 
-	// Ensure testdata directory exists
-	err := os.MkdirAll("testdata", os.ModePerm)
-	require.NoError(t, err, "failed to create testdata directory")
-
-	testFile := "testdata/auto_generated.mp4"
+	// Use a temporary directory for the test file
+	tempDir := t.TempDir()
+	testFile := filepath.Join(tempDir, "auto_generated.mp4")
 
 	// Run FFmpeg command and capture stderr
 	cmd := exec.Command(
