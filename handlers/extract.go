@@ -1,8 +1,9 @@
 package handlers
 
 import (
+	"io"
 	"net/http"
-	"path/filepath"
+	// "path/filepath"
 
 	"os"
 
@@ -14,45 +15,35 @@ import (
 // It expects a file to be uploaded with the key "file" in the form data.
 // The file is saved to a temporary location, validated for type, and metadata is extracted using ffprobe.
 func ExtractHandler(c *gin.Context) {
-	const maxUploadSize = 10 << 20 // 10 MiB
-
-	// Ensures the request body does not exceed the maximum upload size
-	// This is a security measure to prevent large file uploads that could exhaust server resources.
-	// It also allows us to handle the file upload in a controlled manner.
-	c.Request.Body = http.MaxBytesReader(c.Writer, c.Request.Body, maxUploadSize)
-	file, err := c.FormFile("file")
-
+	// Parse uploaded file
+	file, _, err := c.Request.FormFile("file")
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "No file uploaded"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "file is required"})
 		return
 	}
+	defer file.Close()
 
-	if file.Size > maxUploadSize {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "File size exceeds limit Maximum size is 10 MiB"})
-		return
-	}
-
-	// Save the file to a temporary location
-	filename := utils.SanitizeFilename(file.Filename)
-	savePath := filepath.Join("../media", filename)
-	if err := c.SaveUploadedFile(file, savePath); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to save file"})
-		return
-	}
-
-	// Validate the file type after saving
-	allowedTypes := []string{"video/mp4", "video/mpeg", "video/quicktime"}
-	if !utils.IsValidMimeType(savePath, allowedTypes) {
-		os.Remove(savePath) // Clean up the saved file
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid file type"})
-		return
-	}
-
-	// TODO: Extract metadata using ffprobe
-	metadata, err := utils.ExtractMetadata(savePath)
+	// Create a temporary file
+	tempFile, err := os.CreateTemp("", "uploaded-*.mp4")
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to extract metadata", "details": err.Error()})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "could not create temp file"})
 		return
 	}
+	defer os.Remove(tempFile.Name()) // Ensure cleanup
+	defer tempFile.Close()
+
+	// Copy uploaded content to the temp file
+	if _, err := io.Copy(tempFile, file); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to save file"})
+		return
+	}
+
+	// Extract metadata
+	metadata, err := utils.ExtractMetadata(tempFile.Name())
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to extract metadata"})
+		return
+	}
+
 	c.JSON(http.StatusOK, metadata)
 }
