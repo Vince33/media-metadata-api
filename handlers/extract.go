@@ -1,8 +1,10 @@
 package handlers
 
 import (
+	// "errors"
 	"net/http"
 	"path/filepath"
+	"strings"
 
 	"os"
 
@@ -23,12 +25,12 @@ func ExtractHandler(c *gin.Context) {
 	file, err := c.FormFile("file")
 
 	if err != nil {
+		// Catch payload too large for all Go versions
+		if strings.Contains(err.Error(), "http: request body too large") {
+			c.JSON(http.StatusRequestEntityTooLarge, gin.H{"error": "File size exceeds 10 MiB limit"})
+			return
+		}
 		c.JSON(http.StatusBadRequest, gin.H{"error": "No file uploaded"})
-		return
-	}
-
-	if file.Size > maxUploadSize {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "File size exceeds limit Maximum size is 10 MiB"})
 		return
 	}
 
