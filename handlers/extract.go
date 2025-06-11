@@ -69,6 +69,5 @@ func ExtractHandler(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to extract metadata", "details": err.Error()})
 		return
 	}
-
 	c.JSON(http.StatusOK, metadata)
 }
