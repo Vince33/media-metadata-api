@@ -30,3 +30,6 @@ go.sum
 # but keeps the .gitkeep file for directory structure
 /media/*
 !/media/.gitkeep
+
+#dlv artifacts 
+__debug_bin*
