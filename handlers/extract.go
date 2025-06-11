@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"errors"
+	"log"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -49,6 +50,7 @@ func ExtractHandler(c *gin.Context) {
 	filename := utils.SanitizeFilename(file.Filename)
 	savePath := filepath.Join("../media", filename)
 	if err := c.SaveUploadedFile(file, savePath); err != nil {
+		log.Printf("failed to save uploaded file %s: %v", filename, err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to save file"})
 		return
 	}
@@ -63,6 +65,7 @@ func ExtractHandler(c *gin.Context) {
 
 	metadata, err := utils.ExtractMetadata(savePath)
 	if err != nil {
+		log.Printf("failed to extract metadata for file %s: %v", filename, err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to extract metadata", "details": err.Error()})
 		return
 	}
