@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"errors"
-	"fmt"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -38,11 +37,11 @@ func ExtractHandler(c *gin.Context) {
 	if err != nil {
 		if isRequestBodyTooLarge(err) {
 			// Optional: attach internal sentinel for later detection/testing
-			err = fmt.Errorf("%w", ErrBodyTooLarge)
+			// err = fmt.Errorf("%w", ErrBodyTooLarge)
 			c.JSON(http.StatusRequestEntityTooLarge, gin.H{"error": "File size exceeds 10 MiB limit"})
 			return
 		}
-		c.JSON(http.StatusBadRequest, gin.H{"error": "No file uploaded"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid file upload or request"})
 		return
 	}
 
