@@ -11,6 +11,8 @@ A lightweight Go-based API that extracts metadata from uploaded media files (e.g
 - Returns a clean JSON response
 - Organizes uploads in a dedicated `/media` folder
 - Modular file structure (handlers, utils, etc.)
+- Request size limit (10 MiB) and MIME type validation enforced server-side
+- Unit and integration test coverage for handlers, middleware, and ffprobe utilities
 
 ---
 
@@ -30,6 +32,7 @@ media-metadata-api/
 ├── main.go              # Entry point
 ├── handlers/            # HTTP route logic
 │   └── extract.go
+├── middleware/           # Upload size/type enforcement
 ├── utils/               # FFprobe helpers
 │   └── ffprobe.go
 └── media/               # Uploaded or test media files (.gitkeep tracked)
@@ -67,6 +70,7 @@ Note: 📦 Vendored dependencies included for offline testing. Periodically upda
 
 - **Content-Type:** multipart/form-data
 - **Body:** media file as `file` key
+- **Limits:** 10 MiB max file size; accepted types are `video/mp4`, `video/mpeg`, and `video/quicktime`
 
 #### Example using `curl`:
 ```bash
@@ -99,20 +103,38 @@ curl -X POST http://localhost:8080/extract \
 }
 ```
 
+#### Error responses:
+```json
+// File exceeds 10 MiB limit (413)
+{ "error": "File size exceeds 10 MiB limit" }
+
+// Invalid file type (400)
+{ "error": "Invalid file type" }
+```
+
 ---
 
 ## 🔒 Security Considerations
 
 - The project currently stores uploads in the `media/` directory.
-- MIME type validation and max file size enforcement are not yet implemented (see TODOs).
+- Request body size is capped at 10 MiB via `http.MaxBytesReader`, rejecting oversized uploads before they're fully read.
+- MIME type is validated after upload, and files of disallowed types are removed immediately.
+
+---
+
+## 🧪 Testing
+
+This API is used as the real backend in [MetaPeek](https://github.com/Vince33/metapeek)'s 
+Playwright end-to-end test suite — its GitHub Actions CI checks out this repo, 
+starts the server, and runs real upload requests against it, rather than 
+mocking the backend. This repo's own test suite (`*_test.go` files alongside 
+handlers, middleware, and utils) covers extraction, validation, and upload 
+handling directly.
 
 ---
 
 ## 🔧 TODO
 
-- [ ] Add input validation and MIME type checking
-- [ ] Limit file size and types
-- [ ] Add unit and integration tests
 - [ ] Extend to support images (EXIF), PDFs, etc.
 - [ ] Dockerize the application
 
